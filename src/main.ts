@@ -1,0 +1,89 @@
+import { Notice, Plugin } from "obsidian";
+import { buildVaultAnalysisReport } from "./analysis/structureReport";
+import { DEFAULT_SETTINGS } from "./defaults";
+import {
+  buildChangeProposals,
+  buildIndexJson,
+  buildMetadataSchemaJson,
+} from "./output/generatedArtifacts";
+import { SafeGeneratedWriter } from "./output/safeWriter";
+import { collectVaultFiles } from "./scanner/collectVaultFiles";
+import { PersonalAIBaseSettingTab } from "./settings";
+import { ApprovalModal } from "./ui/approvalModal";
+import { ReportModal } from "./ui/reportView";
+import type { PersonalAIBaseSettings, VaultAnalysisReport } from "./types";
+
+export default class PersonalAIBasePlugin extends Plugin {
+  settings: PersonalAIBaseSettings = DEFAULT_SETTINGS;
+  private latestReport: VaultAnalysisReport | null = null;
+
+  async onload(): Promise<void> {
+    await this.loadSettings();
+    this.addSettingTab(new PersonalAIBaseSettingTab(this.app, this));
+
+    this.addCommand({
+      id: "scan-vault",
+      name: "Scan vault",
+      callback: async () => {
+        await this.scanVault();
+      },
+    });
+
+    this.addCommand({
+      id: "review-latest-report",
+      name: "Review latest report",
+      callback: () => {
+        if (!this.latestReport) {
+          new Notice("No report yet. Run Personal AI Base: Scan vault first.");
+          return;
+        }
+        new ReportModal(this.app, this.latestReport).open();
+      },
+    });
+
+    this.addCommand({
+      id: "generate-approved-artifacts",
+      name: "Generate approved artifacts",
+      callback: () => {
+        if (!this.latestReport) {
+          new Notice("No report yet. Run Personal AI Base: Scan vault first.");
+          return;
+        }
+        new ApprovalModal(
+          this.app,
+          "Approve writing index, metadata schema, change proposals, and report files.",
+          async () => this.writeApprovedArtifacts(this.latestReport as VaultAnalysisReport),
+        ).open();
+      },
+    });
+  }
+
+  async loadSettings(): Promise<void> {
+    this.settings = {
+      ...DEFAULT_SETTINGS,
+      ...(await this.loadData()),
+    };
+  }
+
+  async saveSettings(): Promise<void> {
+    await this.saveData(this.settings);
+  }
+
+  private async scanVault(): Promise<void> {
+    new Notice("Personal AI Base: scanning vault read-only...");
+    const inventory = await collectVaultFiles(this.app, this.settings);
+    this.latestReport = buildVaultAnalysisReport(inventory.candidates, inventory.markdown);
+    new ReportModal(this.app, this.latestReport).open();
+    new Notice("Personal AI Base: scan complete. No files were modified.");
+  }
+
+  private async writeApprovedArtifacts(report: VaultAnalysisReport): Promise<void> {
+    const writer = new SafeGeneratedWriter(this.app, this.settings.outputFolder);
+    const date = new Date().toISOString().slice(0, 10);
+    await writer.writeText(`${this.settings.outputFolder}/index.json`, buildIndexJson(report));
+    await writer.writeText(`${this.settings.outputFolder}/metadata-schema.json`, buildMetadataSchemaJson());
+    await writer.writeText(`${this.settings.outputFolder}/change-proposals.md`, buildChangeProposals(report));
+    await writer.writeText(`${this.settings.outputFolder}/reports/${date}-vault-analysis.md`, report.markdownReport);
+    new Notice("Personal AI Base: generated artifacts written under output folder.");
+  }
+}

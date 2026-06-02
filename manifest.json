@@ -1,0 +1,10 @@
+{
+  "id": "personal-ai-base",
+  "name": "Personal AI Base",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Approval-first local AI knowledge-base planner for Obsidian vaults.",
+  "author": "Evankim",
+  "authorUrl": "https://github.com/cheld536",
+  "isDesktopOnly": false
+}

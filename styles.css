@@ -1,0 +1,23 @@
+.personal-ai-base-report {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.personal-ai-base-report pre {
+  max-height: 55vh;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.personal-ai-base-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.personal-ai-base-status div {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 8px;
+}

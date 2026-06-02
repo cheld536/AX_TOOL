@@ -1,0 +1,28 @@
+{
+  "name": "personal-ai-base",
+  "version": "0.1.0",
+  "description": "Approval-first local AI knowledge-base planner for Obsidian vaults.",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node esbuild.config.mjs --watch",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs",
+    "check": "tsc -noEmit -skipLibCheck"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "personal-ai-base",
+    "llm-wiki",
+    "knowledge-base"
+  ],
+  "author": "Evankim",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.20.2",
+    "obsidian": "^1.5.12",
+    "typescript": "^5.4.5"
+  }
+}
