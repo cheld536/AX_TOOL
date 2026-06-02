@@ -292,6 +292,16 @@ Use only on summarized/indexed context:
 - Require a separate model-use approval gate before any cloud model call.
 - Separate privacy risk from token-cost policy; a cheap cloud model can still leak private data.
 
+### Phase 6A - Chat Surface
+
+- Add `Personal AI Base: Open chat` command.
+- Add a ribbon icon for fast access.
+- Add a status bar item showing provider and latest scan status.
+- Support local and external OpenAI-compatible chat-completion endpoints.
+- Default provider remains disabled.
+- Chat context must use generated scan metadata only, not source note bodies.
+- External model calls require explicit user configuration.
+
 ### Phase 7 - Retrieval and Agent Bridge
 
 - Add local search index.
@@ -308,6 +318,8 @@ Use only on summarized/indexed context:
 - User can see why each file is `safe`, `flagged`, `excluded`, or `needs-review`.
 - User can re-run analysis without duplicate output noise.
 - The report helps answer: "What knowledge do I have, what is safe to analyze, and what should I approve next?"
+- Chat can answer using latest scan metadata when an LLM provider is configured.
+- Chat does not include source note bodies in the MVP context.
 
 ## 11. Approval Gates
 
@@ -342,6 +354,7 @@ The user approves any future wiki page creation, folder normalization, tag norma
 - Logs and caches can become hidden secondary data stores.
 - Approval-heavy UX can feel slow unless the UI clearly explains state and next action.
 - Folder semantics are user-specific; never normalize folders automatically.
+- Chat UX can imply broader access than it has; clearly label that MVP chat uses metadata context only.
 
 ## 13. Source Notes
 

@@ -30,4 +30,13 @@ export const DEFAULT_SETTINGS: PersonalAIBaseSettings = {
   reviewOnlySignals: [
     "card-like",
   ],
+  llm: {
+    provider: "disabled",
+    endpoint: "http://localhost:11434/v1/chat/completions",
+    model: "llama3.1",
+    apiKey: "",
+    temperature: 0.2,
+    maxContextNotes: 40,
+    allowReportContext: true,
+  },
 };

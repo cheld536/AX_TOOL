@@ -17,6 +17,32 @@ It is intentionally not an auto-writer. Existing note bodies are treated as read
 - `Personal AI Base: Scan vault`
 - `Personal AI Base: Review latest report`
 - `Personal AI Base: Generate approved artifacts`
+- `Personal AI Base: Open chat`
+
+When the plugin is enabled, it also adds:
+
+- a left ribbon icon for opening chat
+- a status bar item showing LLM provider / scan status
+
+## LLM Chat
+
+The chat feature supports OpenAI-compatible chat completion endpoints.
+
+Default local endpoint:
+
+```text
+http://localhost:11434/v1/chat/completions
+```
+
+This works with local tools that expose an OpenAI-compatible API. External providers can also be configured by changing the endpoint, model, and API key in plugin settings.
+
+Safety behavior:
+
+- LLM calls are disabled by default.
+- Chat uses generated scan metadata only.
+- Source note bodies are not sent by the MVP chat context.
+- `safe` means "passed local rules", not "approved for external LLM transmission".
+- External model use is a separate user decision.
 
 ## Safety Defaults
 

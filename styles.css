@@ -21,3 +21,39 @@
   border-radius: 6px;
   padding: 8px;
 }
+
+.personal-ai-base-statusbar {
+  cursor: pointer;
+}
+
+.personal-ai-base-chat {
+  min-width: min(760px, 90vw);
+}
+
+.personal-ai-base-chat-history {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  max-height: 45vh;
+  overflow: auto;
+  padding: 10px;
+  margin: 12px 0;
+}
+
+.personal-ai-base-chat-message {
+  margin-bottom: 12px;
+}
+
+.personal-ai-base-chat-message p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+
+.personal-ai-base-chat-user {
+  border-left: 3px solid var(--interactive-accent);
+  padding-left: 8px;
+}
+
+.personal-ai-base-chat-assistant {
+  border-left: 3px solid var(--background-modifier-border-hover);
+  padding-left: 8px;
+}

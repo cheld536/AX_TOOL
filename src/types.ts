@@ -6,6 +6,19 @@ export interface PersonalAIBaseSettings {
   excludedFilePatterns: string[];
   hardStopSignals: string[];
   reviewOnlySignals: string[];
+  llm: LLMSettings;
+}
+
+export type LLMProvider = "disabled" | "local-openai-compatible" | "external-openai-compatible";
+
+export interface LLMSettings {
+  provider: LLMProvider;
+  endpoint: string;
+  model: string;
+  apiKey: string;
+  temperature: number;
+  maxContextNotes: number;
+  allowReportContext: boolean;
 }
 
 export interface FileCandidate {
@@ -43,4 +56,9 @@ export interface VaultAnalysisReport {
     needsReviewMarkdown: number;
   };
   markdownReport: string;
+}
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
 }

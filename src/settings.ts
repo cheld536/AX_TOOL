@@ -1,4 +1,5 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
+import type { LLMProvider } from "./types";
 import type PersonalAIBasePlugin from "./main";
 
 export class PersonalAIBaseSettingTab extends PluginSettingTab {
@@ -43,6 +44,91 @@ export class PersonalAIBaseSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.excludedFilePatterns.join(", "))
           .onChange(async (value) => {
             this.plugin.settings.excludedFilePatterns = splitList(value);
+            await this.plugin.saveSettings();
+          });
+      });
+
+    containerEl.createEl("h3", { text: "LLM Chat" });
+    containerEl.createEl("p", {
+      text: "`safe` means passed local rules only. External model use still requires your explicit configuration.",
+    });
+
+    new Setting(containerEl)
+      .setName("Provider")
+      .setDesc("Local and external providers use OpenAI-compatible chat completions.")
+      .addDropdown((dropdown) => {
+        dropdown
+          .addOption("disabled", "Disabled")
+          .addOption("local-openai-compatible", "Local OpenAI-compatible")
+          .addOption("external-openai-compatible", "External OpenAI-compatible")
+          .setValue(this.plugin.settings.llm.provider)
+          .onChange(async (value) => {
+            this.plugin.settings.llm.provider = value as LLMProvider;
+            await this.plugin.saveSettings();
+            this.plugin.refreshStatusBar();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Endpoint")
+      .setDesc("Example local Ollama endpoint: http://localhost:11434/v1/chat/completions")
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.llm.endpoint)
+          .onChange(async (value) => {
+            this.plugin.settings.llm.endpoint = value.trim();
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Model")
+      .setDesc("Example: llama3.1, qwen2.5, gpt-4o-mini, or another OpenAI-compatible model id.")
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.llm.model)
+          .onChange(async (value) => {
+            this.plugin.settings.llm.model = value.trim();
+            await this.plugin.saveSettings();
+            this.plugin.refreshStatusBar();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("API key")
+      .setDesc("Stored in Obsidian plugin data. Leave empty for local providers that do not require a key.")
+      .addText((text) => {
+        text
+          .setPlaceholder("sk-...")
+          .setValue(this.plugin.settings.llm.apiKey)
+          .onChange(async (value) => {
+            this.plugin.settings.llm.apiKey = value.trim();
+            await this.plugin.saveSettings();
+          });
+        text.inputEl.type = "password";
+      });
+
+    new Setting(containerEl)
+      .setName("Max context notes")
+      .setDesc("Limits safe metadata records sent with each chat request. Source bodies are not included.")
+      .addText((text) => {
+        text
+          .setValue(String(this.plugin.settings.llm.maxContextNotes))
+          .onChange(async (value) => {
+            const parsed = Number.parseInt(value, 10);
+            this.plugin.settings.llm.maxContextNotes = Number.isFinite(parsed) ? Math.max(0, parsed) : 40;
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Use latest scan report as chat context")
+      .setDesc("Sends generated metadata from the latest scan, not source note bodies.")
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.llm.allowReportContext)
+          .onChange(async (value) => {
+            this.plugin.settings.llm.allowReportContext = value;
             await this.plugin.saveSettings();
           });
       });
