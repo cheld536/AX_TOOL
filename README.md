@@ -24,8 +24,10 @@ It is intentionally not an auto-writer. Existing note bodies are treated as read
 
 When the plugin is enabled, it also adds:
 
-- a left ribbon icon for opening chat
+- a left ribbon icon for opening the right sidebar chat view
 - a status bar item showing LLM provider / scan status
+
+The chat surface opens as a right sidebar view, similar to Obsidian Code. The view header includes quick actions for scan, Codex planning, Claude planning, artifact generation, and settings guidance.
 
 ## LLM Chat
 

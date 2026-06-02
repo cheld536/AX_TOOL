@@ -296,6 +296,8 @@ Use only on summarized/indexed context:
 
 - Add `Personal AI Base: Open chat` command.
 - Add a ribbon icon for fast access.
+- Open chat as a right sidebar `ItemView`, following the same stable Obsidian pattern used by Obsidian Code.
+- Add top-right header actions inside the view for scan, Codex planning, Claude planning, artifact generation, and settings guidance.
 - Add a status bar item showing provider and latest scan status.
 - Support local and external OpenAI-compatible chat-completion endpoints.
 - Default provider remains disabled.

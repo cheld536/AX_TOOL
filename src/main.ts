@@ -13,7 +13,7 @@ import { SafeGeneratedWriter } from "./output/safeWriter";
 import { collectVaultFiles } from "./scanner/collectVaultFiles";
 import { PersonalAIBaseSettingTab } from "./settings";
 import { ApprovalModal } from "./ui/approvalModal";
-import { ChatModal } from "./ui/chatModal";
+import { PersonalAIBaseView, VIEW_TYPE_PERSONAL_AI_BASE } from "./ui/personalAIBaseView";
 import { ReportModal } from "./ui/reportView";
 import type { PersonalAIBaseSettings, VaultAnalysisReport } from "./types";
 import type { AgentProvider, AgentRunResult } from "./types";
@@ -27,13 +27,19 @@ export default class PersonalAIBasePlugin extends Plugin {
   async onload(): Promise<void> {
     await this.loadSettings();
     this.addSettingTab(new PersonalAIBaseSettingTab(this.app, this));
-    this.addRibbonIcon("brain-circuit", "Personal AI Base Chat", () => {
-      this.openChat();
+    this.registerView(
+      VIEW_TYPE_PERSONAL_AI_BASE,
+      (leaf) => new PersonalAIBaseView(leaf, this),
+    );
+    this.addRibbonIcon("brain-circuit", "Open Personal AI Base", () => {
+      void this.activateView();
     });
     this.statusBarEl = this.addStatusBarItem();
     this.statusBarEl.setText(this.statusBarText());
     this.statusBarEl.addClass("personal-ai-base-statusbar");
-    this.statusBarEl.onClickEvent(() => this.openChat());
+    this.statusBarEl.onClickEvent(() => {
+      void this.activateView();
+    });
 
     this.addCommand({
       id: "scan-vault",
@@ -47,7 +53,7 @@ export default class PersonalAIBasePlugin extends Plugin {
       id: "open-chat",
       name: "Open chat",
       callback: () => {
-        this.openChat();
+        void this.activateView();
       },
     });
 
@@ -66,16 +72,8 @@ export default class PersonalAIBasePlugin extends Plugin {
     this.addCommand({
       id: "generate-approved-artifacts",
       name: "Generate approved artifacts",
-      callback: () => {
-        if (!this.latestReport) {
-          new Notice("No report yet. Run Personal AI Base: Scan vault first.");
-          return;
-        }
-        new ApprovalModal(
-          this.app,
-          "Approve writing index, metadata schema, change proposals, and report files.",
-          async () => this.writeApprovedArtifacts(this.latestReport as VaultAnalysisReport),
-        ).open();
+      callback: async () => {
+        await this.openGenerateArtifactsApproval();
       },
     });
 
@@ -132,13 +130,26 @@ export default class PersonalAIBasePlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  private async scanVault(): Promise<void> {
+  async scanVault(): Promise<void> {
     new Notice("Personal AI Base: scanning vault read-only...");
     const inventory = await collectVaultFiles(this.app, this.settings);
     this.latestReport = buildVaultAnalysisReport(inventory.candidates, inventory.markdown);
     this.refreshStatusBar();
+    this.refreshViews();
     new ReportModal(this.app, this.latestReport).open();
     new Notice("Personal AI Base: scan complete. No files were modified.");
+  }
+
+  async openGenerateArtifactsApproval(): Promise<void> {
+    if (!this.latestReport) {
+      new Notice("No report yet. Run Personal AI Base: Scan vault first.");
+      return;
+    }
+    new ApprovalModal(
+      this.app,
+      "Approve writing index, metadata schema, change proposals, and report files.",
+      async () => this.writeApprovedArtifacts(this.latestReport as VaultAnalysisReport),
+    ).open();
   }
 
   private async writeApprovedArtifacts(report: VaultAnalysisReport): Promise<void> {
@@ -151,7 +162,7 @@ export default class PersonalAIBasePlugin extends Plugin {
     new Notice("Personal AI Base: generated artifacts written under output folder.");
   }
 
-  private async runAgentPlanning(provider: AgentProvider): Promise<void> {
+  async runAgentPlanning(provider: AgentProvider): Promise<void> {
     if (!this.latestReport) {
       new Notice("Run Personal AI Base: Scan vault before agent planning.");
       return;
@@ -164,6 +175,7 @@ export default class PersonalAIBasePlugin extends Plugin {
         const prompt = buildAgentPlanningPrompt(provider, this.latestReport as VaultAnalysisReport, this.settings.agents.maxContextNotes);
         const result = await runAgentCli(provider, prompt, this.settings);
         this.latestAgentRun = result;
+        this.refreshViews();
         const writer = new SafeGeneratedWriter(this.app, this.settings.outputFolder);
         const stamp = new Date().toISOString().replace(/[:.]/g, "-");
         await writer.writeText(`${this.settings.outputFolder}/agent-runs/${stamp}-${provider}-planning.md`, buildAgentRunMarkdown(result));
@@ -172,8 +184,30 @@ export default class PersonalAIBasePlugin extends Plugin {
     ).open();
   }
 
-  private openChat(): void {
-    new ChatModal(this.app, this.settings, () => this.latestReport).open();
+  async activateView(): Promise<void> {
+    let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_PERSONAL_AI_BASE)[0];
+    if (!leaf) {
+      const rightLeaf = this.app.workspace.getRightLeaf(false);
+      if (rightLeaf) {
+        await rightLeaf.setViewState({
+          type: VIEW_TYPE_PERSONAL_AI_BASE,
+          active: true,
+        });
+        leaf = rightLeaf;
+      }
+    }
+    if (leaf) this.app.workspace.revealLeaf(leaf);
+  }
+
+  getLatestReport(): VaultAnalysisReport | null {
+    return this.latestReport;
+  }
+
+  private refreshViews(): void {
+    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_PERSONAL_AI_BASE)) {
+      const view = leaf.view;
+      if (view instanceof PersonalAIBaseView) view.refresh();
+    }
   }
 
   refreshStatusBar(): void {
