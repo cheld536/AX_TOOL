@@ -308,6 +308,18 @@ Use only on summarized/indexed context:
 - Consider MCP bridge after MVP is stable.
 - Keep write actions disabled by default.
 
+### Phase 7A - Codex / Claude Code CLI Bridge
+
+- Add `Personal AI Base: Run Codex planning`.
+- Add `Personal AI Base: Run Claude planning`.
+- Add `Personal AI Base: Review latest agent result`.
+- Run only on Obsidian desktop.
+- Require scan report before launch.
+- Require approval before launching the CLI.
+- Pass generated scan metadata only, not source note bodies.
+- Save results under `.llm-wiki/agent-runs/`.
+- Never apply CLI output automatically.
+
 ## 10. Acceptance Criteria
 
 - Running scan does not modify the vault.
@@ -320,6 +332,7 @@ Use only on summarized/indexed context:
 - The report helps answer: "What knowledge do I have, what is safe to analyze, and what should I approve next?"
 - Chat can answer using latest scan metadata when an LLM provider is configured.
 - Chat does not include source note bodies in the MVP context.
+- CLI agent planning runs only after approval and writes proposal output under `.llm-wiki/agent-runs/`.
 
 ## 11. Approval Gates
 

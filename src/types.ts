@@ -7,6 +7,7 @@ export interface PersonalAIBaseSettings {
   hardStopSignals: string[];
   reviewOnlySignals: string[];
   llm: LLMSettings;
+  agents: AgentSettings;
 }
 
 export type LLMProvider = "disabled" | "local-openai-compatible" | "external-openai-compatible";
@@ -19,6 +20,17 @@ export interface LLMSettings {
   temperature: number;
   maxContextNotes: number;
   allowReportContext: boolean;
+}
+
+export type AgentProvider = "codex" | "claude";
+
+export interface AgentSettings {
+  codexCommand: string;
+  codexArgs: string;
+  claudeCommand: string;
+  claudeArgs: string;
+  timeoutSeconds: number;
+  maxContextNotes: number;
 }
 
 export interface FileCandidate {
@@ -61,4 +73,14 @@ export interface VaultAnalysisReport {
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
+}
+
+export interface AgentRunResult {
+  provider: AgentProvider;
+  command: string;
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+  startedAt: string;
+  completedAt: string;
 }

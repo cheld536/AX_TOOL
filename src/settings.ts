@@ -132,6 +132,85 @@ export class PersonalAIBaseSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           });
       });
+
+    containerEl.createEl("h3", { text: "CLI Agents" });
+    containerEl.createEl("p", {
+      text: "Codex and Claude planning commands receive generated scan metadata only. Existing note bodies are not included.",
+    });
+
+    new Setting(containerEl)
+      .setName("Codex command")
+      .setDesc("Command or executable name for Codex CLI.")
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.agents.codexCommand)
+          .onChange(async (value) => {
+            this.plugin.settings.agents.codexCommand = value.trim() || "codex";
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Codex args")
+      .setDesc("Default uses stdin prompt with Codex exec mode.")
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.agents.codexArgs)
+          .onChange(async (value) => {
+            this.plugin.settings.agents.codexArgs = value.trim();
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Claude command")
+      .setDesc("Command or executable name for Claude Code CLI.")
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.agents.claudeCommand)
+          .onChange(async (value) => {
+            this.plugin.settings.agents.claudeCommand = value.trim() || "claude";
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Claude args")
+      .setDesc("Default uses Claude Code print/headless mode.")
+      .addText((text) => {
+        text
+          .setValue(this.plugin.settings.agents.claudeArgs)
+          .onChange(async (value) => {
+            this.plugin.settings.agents.claudeArgs = value.trim();
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Agent timeout seconds")
+      .setDesc("CLI agent runs are killed after this timeout.")
+      .addText((text) => {
+        text
+          .setValue(String(this.plugin.settings.agents.timeoutSeconds))
+          .onChange(async (value) => {
+            const parsed = Number.parseInt(value, 10);
+            this.plugin.settings.agents.timeoutSeconds = Number.isFinite(parsed) ? Math.max(10, parsed) : 180;
+            await this.plugin.saveSettings();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Agent max context notes")
+      .setDesc("Limits safe metadata records passed to Codex/Claude planning prompts.")
+      .addText((text) => {
+        text
+          .setValue(String(this.plugin.settings.agents.maxContextNotes))
+          .onChange(async (value) => {
+            const parsed = Number.parseInt(value, 10);
+            this.plugin.settings.agents.maxContextNotes = Number.isFinite(parsed) ? Math.max(0, parsed) : 80;
+            await this.plugin.saveSettings();
+          });
+      });
   }
 }
 

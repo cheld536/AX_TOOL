@@ -18,6 +18,9 @@ It is intentionally not an auto-writer. Existing note bodies are treated as read
 - `Personal AI Base: Review latest report`
 - `Personal AI Base: Generate approved artifacts`
 - `Personal AI Base: Open chat`
+- `Personal AI Base: Run Codex planning`
+- `Personal AI Base: Run Claude planning`
+- `Personal AI Base: Review latest agent result`
 
 When the plugin is enabled, it also adds:
 
@@ -43,6 +46,29 @@ Safety behavior:
 - Source note bodies are not sent by the MVP chat context.
 - `safe` means "passed local rules", not "approved for external LLM transmission".
 - External model use is a separate user decision.
+
+## Codex / Claude Code CLI Bridge
+
+The plugin can run Codex or Claude Code as planning agents from Obsidian desktop.
+
+Agent bridge behavior:
+
+- disabled unless you run the command explicitly
+- requires a completed vault scan
+- asks for approval before launching the CLI
+- sends generated scan metadata only
+- does not send source note bodies
+- writes agent output only under `.llm-wiki/agent-runs/`
+- does not apply agent suggestions automatically
+
+Default commands:
+
+```text
+codex exec --skip-git-repo-check -
+claude -p
+```
+
+You can change command paths, arguments, timeout, and context note limits in plugin settings.
 
 ## Safety Defaults
 

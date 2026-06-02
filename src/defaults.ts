@@ -39,4 +39,12 @@ export const DEFAULT_SETTINGS: PersonalAIBaseSettings = {
     maxContextNotes: 40,
     allowReportContext: true,
   },
+  agents: {
+    codexCommand: "codex",
+    codexArgs: "exec --skip-git-repo-check -",
+    claudeCommand: "claude",
+    claudeArgs: "-p",
+    timeoutSeconds: 180,
+    maxContextNotes: 80,
+  },
 };
